@@ -4,49 +4,29 @@
 using namespace std;
 using namespace Eigen;
 
+double ReLu(double input_val){
+     if(input_val<=0.0){
+          return 0.0;
+     }
+     else{
+          return input_val;          
+     }
+}
+
 int main(){
 
-    VectorXd v(3);
+    VectorXd weights(3);
 
-    v << 1,2,3;
+    weights << 0.5,-0.5,1.0;
 
-    cout << "v = \n" << v << "\n\n";
+    VectorXd inputs(3);
+
+    inputs << 1.0, 0.0, -1.0;
+
+    double bias = 0.1;
     
-    
-    
-    MatrixXd A(2,3);
-    A << 1,2,3,
-         4,5, 6;
+    double output = weights.dot(inputs) + bias;
+    cout << ReLu(output) << endl;
 
-    cout << "A = \n" << A << "\n\n";
-
-    MatrixXd B(3,2);
-
-    B << 7,8,
-         9, 10,
-         11, 12;
-
-    cout << "B = \n" << B << "\n\n";
-
-    MatrixXd C=A*B;
-    cout << "A x B =\n" << C << "\n\n";
-
-    VectorXd a(3);
-
-    a << 1, 0, -1;
-
-    VectorXd b(3);
-
-    b << 2, 3, 4;
-
-    double d = a.dot(b);
-
-    cout << "a.b = " << d << "\n\n";
-
-    MatrixXd R = MatrixXd::Random(3, 3);
-
-    cout << "R =\n" << R << "\n";
-    cout << "R is " << R.rows() << "x" << R.cols() << "\n";
-    
     return 0;
 }
