@@ -25,11 +25,6 @@ double ReLU(double input_val){
      }
 }
 
-double mse(const MatrixXd& pred, const MatrixXd& target){
-    return (pred - target).array().square().mean();
-
-}
-
 class DenseLayer {
      public:
          MatrixXd W;
@@ -49,16 +44,14 @@ class DenseLayer {
 
 int main(){
      
-     DenseLayer layer1(2,4);
-     DenseLayer layer2(4,1);
+     DenseLayer layer1(3,4);
+     DenseLayer layer2(4,2);
 
  
-     MatrixXd X(1,2);
+     MatrixXd X(2,3);
 
-     X << 0, 1;
-
-     MatrixXd target(1,1);
-     target << 1;
+     X << -1,2,-7,
+          4,-3,6;
 
      MatrixXd Z1 = layer1.forward(X);
      MatrixXd A1 = Z1.unaryExpr([](double v){return ReLU(v);});
@@ -66,13 +59,8 @@ int main(){
      MatrixXd output = Z2;
 
      
-     //cout << "Z1 outputs:\n" << Z1 << "\n\n";
-     //cout << "A1 outputs:\n" << A1 << "\n\n";
-     //cout << "Output:\n" << output << "\n";
-
-     cout << "Predicted :\n" << output <<"\n\n";
-     cout << "Target values :\n" << target << "\n\n";
-     cout << "Error :\n" << mse(output,target) << endl; 
-
+     cout << "Z1 outputs:\n" << Z1 << "\n\n";
+     cout << "A1 outputs:\n" << A1 << "\n\n";
+     cout << "Output:\n" << output << "\n";
      return 0;
 }
