@@ -11,8 +11,6 @@ Forward     - Y = (X*W).rowwise() + b.transpose()   ->  (batch x n_out)
 Each row of Y is one example's outputs.
 */    
 
-
-
 using namespace std;
 using namespace Eigen;
 
@@ -29,6 +27,7 @@ double mse(const MatrixXd& pred, const MatrixXd& target){
     return (pred - target).array().square().mean();
 
 }
+
 
 class DenseLayer {
      public:
@@ -47,32 +46,37 @@ class DenseLayer {
          }
 };
 
+
+
+MatrixXd forward_pass(const MatrixXd& X, DenseLayer& dense1, DenseLayer& dense2) {
+     MatrixXd Z1 = dense1.forward(X);
+     MatrixXd A1 = Z1.unaryExpr([](double v){return ReLU(v);});
+     MatrixXd Z2 = dense2.forward(A1);
+     return Z2;
+}
+
+
+
 int main(){
+     
+     double epsilon = 1e-5;
+     double learning_rate = 0.1;
      
      DenseLayer layer1(2,4);
      DenseLayer layer2(4,1);
 
  
      MatrixXd X(1,2);
-
      X << 0, 1;
 
      MatrixXd target(1,1);
      target << 1;
 
-     MatrixXd Z1 = layer1.forward(X);
-     MatrixXd A1 = Z1.unaryExpr([](double v){return ReLU(v);});
-     MatrixXd Z2 = layer2.forward(A1);
-     MatrixXd output = Z2;
+     double loss_before = mse(forward_pass(X, layer1, layer2), target);
 
-     
-     //cout << "Z1 outputs:\n" << Z1 << "\n\n";
-     //cout << "A1 outputs:\n" << A1 << "\n\n";
-     //cout << "Output:\n" << output << "\n";
+     cout << "Loss before training: " << loss_before << endl;
 
-     cout << "Predicted :\n" << output <<"\n\n";
-     cout << "Target values :\n" << target << "\n\n";
-     cout << "Error :\n" << mse(output,target) << endl; 
+
 
      return 0;
 }
