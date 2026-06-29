@@ -53,7 +53,7 @@ MatrixXd forward_pass(const MatrixXd& X, DenseLayer& dense1, DenseLayer& dense2)
      MatrixXd A1 = Z1.unaryExpr([](double v){return ReLU(v);});
      MatrixXd Z2 = dense2.forward(A1);
      return Z2;
-}
+} 
 
 
 
@@ -72,11 +72,61 @@ int main(){
      MatrixXd target(1,1);
      target << 1;
 
+
+     MatrixXd gradW1 = MatrixXd::Zero(layer1.W.rows(),layer1.W.cols());
+     MatrixXd gradW2 = MatrixXd::Zero(layer2.W.rows(),layer2.W.cols());
+     MatrixXd gradb1 = VectorXd::Zero(layer1.b.size());
+     MatrixXd gradb2 = VectorXd::Zero(layer2.b.size());
+
+
+
+     for (int iter = 0; iter < 1000; iter++) {
      double loss_before = mse(forward_pass(X, layer1, layer2), target);
+     for(int i = 0; i < layer1.W.rows(); i++){
+          for ( int j = 0; j < layer1.W.cols(); j++){
+               double original = layer1.W(i, j);
+               layer1.W(i, j)+=epsilon;
+               double loss_after = mse(forward_pass(X, layer1, layer2), target);
+               gradW1(i, j) = (loss_after - loss_before)/epsilon;
+               layer1.W(i, j)=original;
+          }
+     }
+     for(int i = 0; i < layer2.W.rows(); i++){
+          for ( int j = 0; j < layer2.W.cols(); j++){
+               double original = layer2.W(i, j);
+               layer2.W(i, j)+=epsilon;
+               double loss_after = mse(forward_pass(X, layer1, layer2), target);
+               gradW2(i, j) = (loss_after - loss_before)/epsilon;
+               layer2.W(i, j)=original;
+          }
+     }
+     for(int i = 0; i < layer1.b.size(); i++){
+               double original = layer1.b(i);
+               layer1.b(i)+=epsilon;
+               double loss_after = mse(forward_pass(X, layer1, layer2), target);
+               gradb1(i) = (loss_after - loss_before)/epsilon;
+               layer1.b(i)=original;
+          }
+     for(int i = 0; i < layer2.b.size(); i++){
+               double original = layer2.b(i);
+               layer2.b(i)+=epsilon;
+               double loss_after = mse(forward_pass(X, layer1, layer2), target);
+               gradb2(i) = (loss_after - loss_before)/epsilon;
+               layer2.b(i)=original;
+          }
+     layer1.W -= learning_rate * gradW1;
+     layer2.W -= learning_rate * gradW2;
+     layer1.b -= learning_rate * gradb1;
+     layer2.b -= learning_rate * gradb2;
 
-     cout << "Loss before training: " << loss_before << endl;
+     if (iter % 100 == 0){
+          cout << "iter " << iter << " loss: " << loss_before << "\n";
+     }
 
+     }
 
+     cout << "Prediction : "<<forward_pass(X, layer1, layer2) << "\n";
+     
 
      return 0;
 }
