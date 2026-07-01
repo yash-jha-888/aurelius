@@ -67,12 +67,15 @@ int main(){
      DenseLayer layer2(4,1);
 
  
-     MatrixXd X(1,2);
-     X << 0, 1;
+     MatrixXd X(4,2);
+     X << 0, 0,
+          0, 1,
+          1, 0,
+          1, 1;
 
-     MatrixXd target(1,1);
-     target << 1;
-
+     MatrixXd target(4,1);
+     target << 0,1,1,0;
+     float n=X.rows();
 
      MatrixXd gradW1 = MatrixXd::Zero(layer1.W.rows(),layer1.W.cols());
      MatrixXd gradW2 = MatrixXd::Zero(layer2.W.rows(),layer2.W.cols());
@@ -81,22 +84,22 @@ int main(){
 
 
 
-     for (int iter = 0; iter < 50; iter++) {
+     for (int iter = 0; iter < 10000; iter++) {
 
      MatrixXd prediction = forward_pass(X, layer1, layer2);
      double loss = mse(prediction, target);
 
      //BACKWARD
 
-     MatrixXd delta2 = 2.0 * (prediction - target);  //n=1     
+     MatrixXd delta2 = (2.0/n) * (prediction - target);  //n=1     
      MatrixXd gradW2 = layer2.cached_input.transpose() * delta2;
-     MatrixXd gradb2 = delta2;
+     MatrixXd gradb2 = delta2.colwise().sum();
      
      MatrixXd delta_A1 = delta2 * layer2.W.transpose();   //blame on A1 (1x4)
      MatrixXd relu_mask = (layer1.cached_Z.array() >0.0).cast<double>();  // 1 where Z1 > 0, else 0.
      MatrixXd delta1 = delta_A1.array() * relu_mask.array(); //blame on Z1, hadamard product.
      MatrixXd gradW1 = layer1.cached_input.transpose() * delta1;
-     MatrixXd gradb1 = delta1;
+     MatrixXd gradb1 = delta1.colwise().sum();
      
 
      //UPDATE
@@ -105,13 +108,13 @@ int main(){
      layer1.b -= learning_rate * gradb1.transpose();
      layer2.b -= learning_rate * gradb2.transpose();
 
-     if (iter % 5 == 0){
+     if (iter % 500 == 0){
           cout << "iter " << iter << " loss: " << loss << "\n";
      }
 
      }
 
-     cout << "Prediction : "<<forward_pass(X, layer1, layer2) << "\n";
+     cout << "Prediction :\n "<<forward_pass(X, layer1, layer2) << "\n";
 
      return 0;
 }
