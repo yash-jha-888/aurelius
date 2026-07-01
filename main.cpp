@@ -34,6 +34,7 @@ class DenseLayer {
          MatrixXd W;
          VectorXd b;
          MatrixXd cached_input;
+         MatrixXd cached_Z;
 
          DenseLayer( int n_in, int n_out){
           W = MatrixXd::Random(n_in, n_out);
@@ -41,8 +42,8 @@ class DenseLayer {
          }
          MatrixXd forward(const MatrixXd& X) { 
           cached_input=X;
-          return (X*W).rowwise() + b.transpose();
-
+          cached_Z = (X*W).rowwise() + b.transpose();
+          return cached_Z;
          }
 };
 
@@ -80,8 +81,9 @@ int main(){
 
 
 
-     for (int iter = 0; iter < 1000; iter++) {
+     //for (int iter = 0; iter < 1000; iter++) {
      double loss_before = mse(forward_pass(X, layer1, layer2), target);
+     
      for(int i = 0; i < layer1.W.rows(); i++){
           for ( int j = 0; j < layer1.W.cols(); j++){
                double original = layer1.W(i, j);
@@ -91,6 +93,7 @@ int main(){
                layer1.W(i, j)=original;
           }
      }
+     
      for(int i = 0; i < layer2.W.rows(); i++){
           for ( int j = 0; j < layer2.W.cols(); j++){
                double original = layer2.W(i, j);
@@ -100,6 +103,7 @@ int main(){
                layer2.W(i, j)=original;
           }
      }
+     /*
      for(int i = 0; i < layer1.b.size(); i++){
                double original = layer1.b(i);
                layer1.b(i)+=epsilon;
@@ -126,7 +130,27 @@ int main(){
      }
 
      cout << "Prediction : "<<forward_pass(X, layer1, layer2) << "\n";
+     */
+
+
+     MatrixXd prediction = forward_pass(X, layer1, layer2);
+     MatrixXd delta2 = 2.0 * (prediction - target);  //n=1     
+
+     MatrixXd delta_A1 = delta2 * layer2.W.transpose();   //blame on A1 (1x4)
+     MatrixXd relu_mask = (layer1.cached_Z.array() >0.0).cast<double>();  // 1 where Z1 > 0, else 0.
+     MatrixXd delta1 = delta_A1.array() * relu_mask.array(); //blame on Z1, hadamard product.
      
+     MatrixXd gradW2_analytical = layer2.cached_input.transpose() * delta2;
+     MatrixXd gradb2_analytical = delta2;
+     MatrixXd gradW1_analytical = layer1.cached_input.transpose() * delta1;
+     MatrixXd gradb1_analytical = delta1;
+     
+     cout << "Analytical gradW2 :\n " << gradW2_analytical <<"\n\n";
+     cout << "Numerical  gradW2 :\n " << gradW2 << "\n\n";
+     cout << "Analytical gradW1 :\n " << gradW1_analytical <<"\n\n";
+     cout << "Numerical  gradW1 :\n " << gradW1 << "\n\n";
+
+
 
      return 0;
 }
