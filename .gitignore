@@ -2,3 +2,5 @@
 *.o
 *.out
 main
+data/
+mnist
