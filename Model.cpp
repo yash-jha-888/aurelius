@@ -1,19 +1,24 @@
 #include "Model.h"
 #include "Activation.h"
 #include<Eigen/Dense>
-Model::Model()
-    : layer1(2,4),
-      layer2(4,1)
-{
+Model::Model(const std::vector<int>& sizes)
+{ 
+     for (int i = 0; i < sizes.size() - 1; i++) {
+        layers.push_back(DenseLayer(sizes[i], sizes[i+1]));
+     }
 }
 
 Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
-     Eigen::MatrixXd Z1 = layer1.forward(X);
-     Eigen::MatrixXd A1 = Z1.unaryExpr([](double v){return ReLU(v);});
-     Eigen::MatrixXd Z2 = layer2.forward(A1);
-     return Z2;
+    Eigen::MatrixXd current = X;
+    for (int i = 0; i < layers.size(); i++) {
+        current = layers[i].forward(current);         
+        if (i < layers.size() - 1) {
+            current = current.unaryExpr([](double v){ return ReLU(v); });
+        }
+    }
+    return current;
 }
-
+/*
 void Model::backward(const Eigen::MatrixXd& prediction, const Eigen::MatrixXd& target)
 {
      const double n = prediction.rows(); 
@@ -35,3 +40,4 @@ void Model::update(double learning_rate)
      layer1.b -= learning_rate * layer1.gradb.transpose();
      layer2.b -= learning_rate * layer2.gradb.transpose();
 }
+*/

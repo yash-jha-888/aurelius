@@ -5,6 +5,7 @@
 #include"Activation.h"
 #include"Loss.h"
 #include"Model.h"
+#include"Dataset.h"
 /*
 Data layout - Row convention
 One example - x is (1 x n_in) a row
@@ -19,36 +20,18 @@ Each row of Y is one example's outputs.
 int main(){
      
      double learning_rate = 0.1;
+   
+     Model model({784, 128, 64, 10});     // <-- sizes list, matches new constructor
      
-     Model model;
+     Eigen::MatrixXd X = load_images("data/train-images-idx3-ubyte");
+     Eigen::MatrixXd Y = load_labels("data/train-labels-idx1-ubyte");
 
- 
-     Eigen::MatrixXd X(4,2);
-     X << 0, 0,
-          0, 1,
-          1, 0,
-          1, 1;
-
-     Eigen::MatrixXd target(4,1);
-     target << 0,1,1,0;
-
-     for (int iter = 0; iter < 10000; iter++) {
-
-          Eigen::MatrixXd prediction = model.forward(X);
+     std::cout << "loaded " << X.rows() << " images, " << Y.rows() << " labels\n";
      
-          double loss = mse(prediction, target);
-     
-          model.backward(prediction, target);
+     Eigen::MatrixXd batch = X.topRows(5);          // (5 x 784)
 
-          model.update(learning_rate);
-
-          if (iter % 500 == 0){
-               std::cout << "iter " << iter << " loss: " << loss << "\n";
-          }
-
-     }
-
-     std::cout << "Prediction :\n "<<model.forward(X) << "\n";
+     Eigen::MatrixXd out = model.forward(batch);
+     std::cout << "output shape: " << out.rows() << " x " << out.cols() << "\n";
 
      return 0;
 }

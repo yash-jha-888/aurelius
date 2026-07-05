@@ -1,16 +1,15 @@
 #pragma once
-
+#include <vector>
 #include <Eigen/Dense>
 #include "DenseLayer.h"
 
 class Model
 {
 private:
-    DenseLayer layer1;
-    DenseLayer layer2;
+    std::vector<DenseLayer> layers;
 
 public:
-    Model();
+    Model(const std::vector<int>& sizes);
 
     Eigen::MatrixXd forward(const Eigen::MatrixXd& X);
     
