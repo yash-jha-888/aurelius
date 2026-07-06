@@ -29,12 +29,30 @@ int main(){
      std::cout << "loaded " << X.rows() << " images, " << Y.rows() << " labels\n";
      */
 
-     Eigen::MatrixXd pred(1, 3);
-     pred << 0.7, 0.2, 0.1;
-     Eigen::MatrixXd target(1, 3);
-     target << 1.0, 0.0, 0.0;
+     Eigen::MatrixXd X(4, 2);
+     X <<  0, 0,
+           0, 1,
+           1, 0,
+           1, 1;
+     Eigen::MatrixXd Y(4, 1);
+     Y << 0,
+          1,
+          1,
+          0;
+     
+     Model model({2, 4, 1}); // 2 input features, 4 hidden neurons, 1 output neuron
+     for (int epoch = 0; epoch < 10000; ++epoch) {
+         Eigen::MatrixXd predictions = model.forward(X);
+         double loss = mse(predictions, Y);
+         Eigen::MatrixXd delta = mse_delta(predictions, Y);
+         model.backward(delta);
+         model.update(learning_rate);
 
-     std::cout << cross_entropy(pred, target) << std::endl;     
+         if (epoch % 1000 == 0) {
+             std::cout << "Epoch " << epoch << ", Loss: " << loss << std::endl;
+         }
+     }
+     std::cout << "Final predictions:\n" << model.forward(X) << std::endl;
      
      return 0;
 }

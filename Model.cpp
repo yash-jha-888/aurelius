@@ -19,10 +19,10 @@ Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
     return current;
 }
 
-void Model::backward(const Eigen::MatrixXd& prediction, const Eigen::MatrixXd& target)
+void Model::backward(const Eigen::MatrixXd& output_delta)
 {
-     const double n = prediction.rows(); 
-     Eigen::MatrixXd delta = (2.0/n) * (prediction - target);
+     const double n = output_delta.rows(); 
+     Eigen::MatrixXd delta = output_delta;
      for (int i = layers.size() - 1; i >= 0; i--) {
          if (i < layers.size() - 1) {
              Eigen::MatrixXd relu_mask = (layers[i].cached_Z.array() > 0.0).cast<double>();
