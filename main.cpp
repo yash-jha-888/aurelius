@@ -27,8 +27,14 @@ int main(){
      Eigen::MatrixXd Y = load_labels("data/train-labels-idx1-ubyte");
 
      std::cout << "loaded " << X.rows() << " images, " << Y.rows() << " labels\n";
-     
      */
 
+     Eigen::MatrixXd pred(1, 3);
+     pred << 0.7, 0.2, 0.1;
+     Eigen::MatrixXd target(1, 3);
+     target << 1.0, 0.0, 0.0;
+
+     std::cout << cross_entropy(pred, target) << std::endl;     
+     
      return 0;
 }
