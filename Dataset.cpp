@@ -46,3 +46,23 @@ Eigen::MatrixXd load_labels(const std::string& path) {
     }
     return labels;
 }
+
+DataSplit split_data(const Eigen::MatrixXd& X,
+                     const Eigen::MatrixXd& Y,
+                     double fraction_b)
+{
+    int n = X.rows();
+
+    int n_b = static_cast<int>(n * fraction_b);
+    int n_a = n - n_b;
+
+    DataSplit result;
+
+    result.X_a = X.topRows(n_a);
+    result.Y_a = Y.topRows(n_a);
+
+    result.X_b = X.bottomRows(n_b);
+    result.Y_b = Y.bottomRows(n_b);
+
+    return result;
+}
