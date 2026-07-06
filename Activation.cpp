@@ -8,3 +8,18 @@ double ReLU(double input_val){
           return input_val;          
      }
 }
+
+Eigen::MatrixXd softmax(const Eigen::MatrixXd& Z) {
+    //max of each row
+     Eigen::VectorXd rowMax = Z.rowwise().maxCoeff();
+     //shift rows by subtracting rowMax
+     Eigen::MatrixXd shiftedZ = Z.colwise() - rowMax;
+     //exponentiate
+     Eigen::MatrixXd expZ = shiftedZ.array().exp();
+     //sum of exponentials for each row
+     Eigen::VectorXd rowSum = expZ.rowwise().sum();
+     //divide each row by the sum
+     Eigen::MatrixXd probs = expZ.array().colwise() / rowSum.array();
+     
+     return probs;
+}

@@ -18,26 +18,25 @@ Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
     }
     return current;
 }
-/*
+
 void Model::backward(const Eigen::MatrixXd& prediction, const Eigen::MatrixXd& target)
 {
      const double n = prediction.rows(); 
-     Eigen::MatrixXd delta2 = (2.0/n) * (prediction - target);  //n=1     
-     layer2.gradW = layer2.cached_input.transpose() * delta2;
-     layer2.gradb = delta2.colwise().sum();
-     
-     Eigen::MatrixXd delta_A1 = delta2 * layer2.W.transpose();   //blame on A1 (1x4)
-     Eigen::MatrixXd relu_mask = (layer1.cached_Z.array() >0.0).cast<double>();  // 1 where Z1 > 0, else 0.
-     Eigen::MatrixXd delta1 = delta_A1.array() * relu_mask.array(); //blame on Z1, hadamard product.
-     layer1.gradW = layer1.cached_input.transpose() * delta1;
-     layer1.gradb = delta1.colwise().sum();
+     Eigen::MatrixXd delta = (2.0/n) * (prediction - target);
+     for (int i = layers.size() - 1; i >= 0; i--) {
+         if (i < layers.size() - 1) {
+             Eigen::MatrixXd relu_mask = (layers[i].cached_Z.array() > 0.0).cast<double>();
+             delta = (delta * layers[i + 1].W.transpose()).array() * relu_mask.array();
+         }
+         layers[i].gradW = layers[i].cached_input.transpose() * delta;
+         layers[i].gradb = delta.colwise().sum();
+     }
 }
 
 void Model::update(double learning_rate)
 {
-     layer1.W -= learning_rate * layer1.gradW;
-     layer2.W -= learning_rate * layer2.gradW;
-     layer1.b -= learning_rate * layer1.gradb.transpose();
-     layer2.b -= learning_rate * layer2.gradb.transpose();
+     for (auto& layer : layers) {
+         layer.W -= learning_rate * layer.gradW;
+         layer.b -= learning_rate * layer.gradb.transpose();
+     }
 }
-*/
