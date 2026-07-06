@@ -13,3 +13,6 @@ double cross_entropy(const Eigen::MatrixXd& pred,
 
 Eigen::MatrixXd softmax_cross_entropy_delta(const Eigen::MatrixXd& probs,
                                           const Eigen::MatrixXd& target);
+
+double accuracy(const Eigen::MatrixXd& probs,
+                const Eigen::MatrixXd& target);

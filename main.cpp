@@ -31,8 +31,9 @@ int main(){
      int num_samples = X.rows();
 
      // Train the model
-     for (int epoch = 0; epoch < 10; epoch++) {
+     for (int epoch = 0; epoch < 30; epoch++) {
           double epoch_loss = 0.0;
+          double epoch_accuracy = 0.0;
           int num_batches = 0;
 
           //mini=batch loop
@@ -44,16 +45,24 @@ int main(){
                // Forward pass -> softmax -> loss -> delta -> backward -> update
                Eigen::MatrixXd logits = model.forward(X_batch);
                Eigen::MatrixXd probs = softmax(logits);
+               double acc = accuracy(probs, Y_batch);
                double loss = cross_entropy(probs, Y_batch);
                Eigen::MatrixXd delta = softmax_cross_entropy_delta(probs, Y_batch);
                model.backward(delta);
                model.update(learning_rate);
 
                epoch_loss += loss;
+               epoch_accuracy += acc;
                num_batches++;
           }
 
-          std::cout << "Epoch " << epoch << ", Avg. Loss: " << epoch_loss / num_batches << std::endl;
+          std::cout << "Epoch " << epoch
+          << ", Avg. Loss: " << epoch_loss / num_batches
+          << ", Accuracy: "
+          << (epoch_accuracy / num_batches) * 100.0
+          << "%"
+          << std::endl;
+     }
 
      
      return 0;
