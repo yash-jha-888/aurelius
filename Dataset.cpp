@@ -1,6 +1,10 @@
 #include "Dataset.h"
 #include <fstream>
 #include <cstdint>
+#include <vector>
+#include <numeric>
+#include <algorithm>
+#include <random>
 
 static uint32_t swap_endian(uint32_t val) {
     return ((val >> 24) & 0xff)     |
@@ -63,6 +67,32 @@ DataSplit split_data(const Eigen::MatrixXd& X,
 
     result.X_b = X.bottomRows(n_b);
     result.Y_b = Y.bottomRows(n_b);
+
+    return result;
+}
+
+ShuffledData shuffle_data(const Eigen::MatrixXd& X,
+                          const Eigen::MatrixXd& Y,
+                          unsigned int seed)
+{
+    int n = X.rows();
+
+    std::vector<int> indices(n);
+    std::iota(indices.begin(), indices.end(), 0);
+
+    std::mt19937 rng(seed);
+    std::shuffle(indices.begin(), indices.end(), rng);
+
+    ShuffledData result;
+
+    result.X.resizeLike(X);
+    result.Y.resizeLike(Y);
+
+    for (int i = 0; i < n; i++)
+    {
+        result.X.row(i) = X.row(indices[i]);
+        result.Y.row(i) = Y.row(indices[i]);
+    }
 
     return result;
 }
