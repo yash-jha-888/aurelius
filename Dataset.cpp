@@ -96,3 +96,48 @@ ShuffledData shuffle_data(const Eigen::MatrixXd& X,
 
     return result;
 }
+
+DataSplit train_val_split(const Eigen::MatrixXd& X,
+                          const Eigen::MatrixXd& Y,
+                          double val_fraction,
+                          unsigned int seed)
+{
+    ShuffledData shuffled = shuffle_data(X, Y, seed);
+
+    return split_data(shuffled.X,
+                      shuffled.Y,
+                      val_fraction);
+}
+
+TrainValTestSplit train_val_test_split(
+    const Eigen::MatrixXd& X,
+    const Eigen::MatrixXd& Y,
+    double val_fraction,
+    double test_fraction,
+    unsigned int seed)
+{
+    if (val_fraction + test_fraction >= 1.0)
+    throw std::invalid_argument(
+        "Validation + test fractions must be less than 1.");
+    // Shuffle once.
+    ShuffledData shuffled = shuffle_data(X, Y, seed);
+
+    // Separate the test set.
+    DataSplit test_split =
+        split_data(shuffled.X, shuffled.Y, test_fraction);
+
+    // Split the remaining data into train and validation.
+    double adjusted_val_fraction =
+        val_fraction / (1.0 - test_fraction);
+
+    DataSplit train_val =
+        split_data(test_split.X_a,
+                   test_split.Y_a,
+                   adjusted_val_fraction);
+
+    return {
+        train_val.X_a, train_val.Y_a,
+        train_val.X_b, train_val.Y_b,
+        test_split.X_b, test_split.Y_b
+    };
+}

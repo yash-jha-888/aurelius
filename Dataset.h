@@ -24,3 +24,23 @@ struct DataSplit
 DataSplit split_data(const Eigen::MatrixXd& X,
                      const Eigen::MatrixXd& Y,
                      double fraction_b = 0.1);
+
+
+DataSplit train_val_split(const Eigen::MatrixXd& X,
+                          const Eigen::MatrixXd& Y,
+                          double val_fraction = 0.1,
+                          unsigned int seed = 42);
+
+struct TrainValTestSplit
+{
+    Eigen::MatrixXd X_train, Y_train;
+    Eigen::MatrixXd X_val,   Y_val;
+    Eigen::MatrixXd X_test,  Y_test;
+};
+
+TrainValTestSplit train_val_test_split(
+    const Eigen::MatrixXd& X,
+    const Eigen::MatrixXd& Y,
+    double val_fraction = 0.1,
+    double test_fraction = 0.1,
+    unsigned int seed = 42);

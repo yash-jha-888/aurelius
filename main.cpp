@@ -18,7 +18,7 @@ Each row of Y is one example's outputs.
  
 
 int main(){
-     /*
+     
      // Load the MNIST dataset
      Eigen::MatrixXd X = load_images("data/train-images-idx3-ubyte");
      Eigen::MatrixXd Y = load_labels("data/train-labels-idx1-ubyte");
@@ -55,7 +55,6 @@ int main(){
 
           std::cout << "Epoch " << epoch << ", Avg. Loss: " << epoch_loss / num_batches << std::endl;
 
-     }*/
-    
+     
      return 0;
 }
