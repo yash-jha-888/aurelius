@@ -5,6 +5,7 @@
 #include <numeric>
 #include <algorithm>
 #include <random>
+#include <stdexcept>
 
 static uint32_t swap_endian(uint32_t val) {
     return ((val >> 24) & 0xff)     |
@@ -15,6 +16,9 @@ static uint32_t swap_endian(uint32_t val) {
 
 Eigen::MatrixXd load_images(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open file: " + path);
+    }
     uint32_t magic = 0;
     file.read(reinterpret_cast<char*>(&magic), 4);
     magic = swap_endian(magic);
