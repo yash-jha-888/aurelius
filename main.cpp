@@ -19,40 +19,42 @@ Each row of Y is one example's outputs.
 
 int main(){
      
-     double learning_rate = 0.1;
-     /*   
-     Model model({784, 128, 64, 10});     // <-- sizes list, matches new constructor
-     
+     // Load the MNIST dataset
      Eigen::MatrixXd X = load_images("data/train-images-idx3-ubyte");
      Eigen::MatrixXd Y = load_labels("data/train-labels-idx1-ubyte");
-
      std::cout << "loaded " << X.rows() << " images, " << Y.rows() << " labels\n";
-     */
 
-     Eigen::MatrixXd X(4, 2);
-     X <<  0, 0,
-           0, 1,
-           1, 0,
-           1, 1;
-     Eigen::MatrixXd Y(4, 1);
-     Y << 0,
-          1,
-          1,
-          0;
-     
-     Model model({2, 4, 1}); // 2 input features, 4 hidden neurons, 1 output neuron
-     for (int epoch = 0; epoch < 10000; ++epoch) {
-         Eigen::MatrixXd predictions = model.forward(X);
-         double loss = mse(predictions, Y);
-         Eigen::MatrixXd delta = mse_delta(predictions, Y);
-         model.backward(delta);
-         model.update(learning_rate);
+     //Build the classifier model
+     Model model({784, 128, 64, 10});
+     double learning_rate = 0.1;
+     int batch_size = 64;
+     int num_samples = X.rows();
 
-         if (epoch % 1000 == 0) {
-             std::cout << "Epoch " << epoch << ", Loss: " << loss << std::endl;
-         }
+     // Train the model
+     for (int epoch = 0; epoch < 10; epoch++) {
+          double epoch_loss = 0.0;
+          int num_batches = 0;
+
+          //mini=batch loop
+          for (int start = 0; start + batch_size <= num_samples; start += batch_size) {
+               //sliice the batch from the dataset
+               Eigen::MatrixXd X_batch = X.middleRows(start, batch_size);
+               Eigen::MatrixXd Y_batch = Y.middleRows(start, batch_size);
+
+               // Forward pass -> softmax -> loss -> delta -> backward -> update
+               Eigen::MatrixXd logits = model.forward(X_batch);
+               Eigen::MatrixXd probs = softmax(logits);
+               double loss = cross_entropy(probs, Y_batch);
+               Eigen::MatrixXd delta = softmax_cross_entropy_delta(probs, Y_batch);
+               model.backward(delta);
+               model.update(learning_rate);
+
+               epoch_loss += loss;
+               num_batches++;
+          }
+
+          std::cout << "Epoch " << epoch << ", Avg. Loss: " << epoch_loss / num_batches << std::endl;
+
      }
-     std::cout << "Final predictions:\n" << model.forward(X) << std::endl;
-     
      return 0;
 }
