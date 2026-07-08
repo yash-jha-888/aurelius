@@ -26,7 +26,7 @@ int main(){
      Eigen::MatrixXd X = load_images(data_dir + "train-images-idx3-ubyte");
      Eigen::MatrixXd Y = load_labels(data_dir + "train-labels-idx1-ubyte");
 
-     TrainValTestSplit data = train_val_test_split(X, Y, 0.1, 0.1);
+     TrainValTestSplit data = train_val_test_split(X, Y, 0.1, 0.1, 42);
 
      std::cout << "Train: " << data.X_train.rows() << '\n';
 
