@@ -3,6 +3,7 @@
 #include<cmath>
 #include<limits>
 #include <string>
+#include <memory>
 #include"DenseLayer.h"
 #include"Activation.h"
 #include"Loss.h"
@@ -35,7 +36,10 @@ int main(){
      std::cout << "Test: " << data.X_test.rows() << '\n';
      
      //Build the classifier model
-     Model model({784, 128, 64, 10});
+     Model model(
+     {784,128,64,10},
+     std::make_unique<LeakyReLU>()
+     );
 
      Model best_model = model;
 

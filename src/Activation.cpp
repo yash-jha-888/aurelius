@@ -1,25 +1,58 @@
 #include "Activation.h"
 
-double ReLU(double input_val){
-     if(input_val<=0.0){
-          return 0.0;
-     }
-     else{
-          return input_val;          
-     }
+
+// ReLU
+
+
+Eigen::MatrixXd ReLU::forward(const Eigen::MatrixXd& Z) const
+{
+    return Z.unaryExpr([](double z)
+    {
+        return z > 0.0 ? z : 0.0;
+    });
 }
 
-Eigen::MatrixXd softmax(const Eigen::MatrixXd& Z) {
-    //max of each row
-     Eigen::VectorXd rowMax = Z.rowwise().maxCoeff();
-     //shift rows by subtracting rowMax
-     Eigen::MatrixXd shiftedZ = Z.colwise() - rowMax;
-     //exponentiate
-     Eigen::MatrixXd expZ = shiftedZ.array().exp();
-     //sum of exponentials for each row
-     Eigen::VectorXd rowSum = expZ.rowwise().sum();
-     //divide each row by the sum
-     Eigen::MatrixXd probs = expZ.array().colwise() / rowSum.array();
-     
-     return probs;
+Eigen::MatrixXd ReLU::derivative(const Eigen::MatrixXd& Z) const
+{
+    return (Z.array() > 0.0).cast<double>();
+}
+
+
+// LeakyReLU
+
+
+Eigen::MatrixXd LeakyReLU::forward(const Eigen::MatrixXd& Z) const
+{
+    return Z.unaryExpr([](double z)
+    {
+        return z > 0.0 ? z : 0.01 * z;
+    });
+}
+
+Eigen::MatrixXd LeakyReLU::derivative(const Eigen::MatrixXd& Z) const
+{
+    return Z.unaryExpr([](double z)
+    {
+        return z > 0.0 ? 1.0 : 0.01;
+    });
+}
+
+
+// Softmax
+
+
+Eigen::MatrixXd softmax(const Eigen::MatrixXd& Z)
+{
+    Eigen::VectorXd rowMax = Z.rowwise().maxCoeff();
+
+    Eigen::MatrixXd shiftedZ = Z.colwise() - rowMax;
+
+    Eigen::MatrixXd expZ = shiftedZ.array().exp();
+
+    Eigen::VectorXd rowSum = expZ.rowwise().sum();
+
+    Eigen::MatrixXd probs =
+        expZ.array().colwise() / rowSum.array();
+
+    return probs;
 }

@@ -1,11 +1,44 @@
 #include "Model.h"
 #include "Activation.h"
 #include<Eigen/Dense>
-Model::Model(const std::vector<int>& sizes)
-{ 
-     for (int i = 0; i < sizes.size() - 1; i++) {
-        layers.push_back(DenseLayer(sizes[i], sizes[i+1]));
-     }
+Model::Model(
+    const std::vector<int>& sizes,
+    std::unique_ptr<Activation> act
+)
+    : activation(std::move(act))
+{
+    for (int i = 0; i < sizes.size() - 1; i++)
+    {
+        layers.emplace_back(sizes[i], sizes[i + 1]);
+    }
+}
+Model::Model(const Model& other)
+    : layers(other.layers)
+{
+    if (other.activation)
+    {
+        activation = other.activation->clone();
+    }
+}
+Model& Model::operator=(const Model& other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+
+    layers = other.layers;
+
+    if (other.activation)
+    {
+        activation = other.activation->clone();
+    }
+    else
+    {
+        activation.reset();
+    }
+
+    return *this;
 }
 
 Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
@@ -13,7 +46,7 @@ Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
     for (int i = 0; i < layers.size(); i++) {
         current = layers[i].forward(current);         
         if (i < layers.size() - 1) {
-            current = current.unaryExpr([](double v){ return ReLU(v); });
+            current = activation->forward(current);
         }
     }
     return current;
@@ -21,12 +54,17 @@ Eigen::MatrixXd Model::forward(const Eigen::MatrixXd& X) {
 
 void Model::backward(const Eigen::MatrixXd& output_delta)
 {
-     const double n = output_delta.rows(); 
+     const double n = output_delta.rows();
      Eigen::MatrixXd delta = output_delta;
      for (int i = layers.size() - 1; i >= 0; i--) {
          if (i < layers.size() - 1) {
-             Eigen::MatrixXd relu_mask = (layers[i].cached_Z.array() > 0.0).cast<double>();
-             delta = (delta * layers[i + 1].W.transpose()).array() * relu_mask.array();
+             Eigen::MatrixXd mask =
+             activation->derivative(layers[i].cached_Z);
+
+             delta =
+             (delta * layers[i + 1].W.transpose()).array()
+             *
+             mask.array();  
          }
          layers[i].gradW = layers[i].cached_input.transpose() * delta;
          layers[i].gradb = delta.colwise().sum();
