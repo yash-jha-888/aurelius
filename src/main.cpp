@@ -26,14 +26,18 @@ int main(){
      std::string data_dir = std::string(PROJECT_ROOT) + "/data/";
      Eigen::MatrixXd X = load_images(data_dir + "train-images-idx3-ubyte");
      Eigen::MatrixXd Y = load_labels(data_dir + "train-labels-idx1-ubyte");
+     Eigen::MatrixXd X_test = load_images(data_dir + "t10k-images-idx3-ubyte");
+     Eigen::MatrixXd Y_test = load_labels(data_dir + "t10k-labels-idx1-ubyte");
 
-     TrainValTestSplit data = train_val_test_split(X, Y, 0.1, 0.1, 42);
+     DataSplit data = train_val_split(X, Y,0.1, 42);
 
-     std::cout << "Train: " << data.X_train.rows() << '\n';
+     std::cout << "Train: " << data.X_a.rows() << '\n';
 
-     std::cout << "Validation: " << data.X_val.rows() << '\n';
+     std::cout << "Validation: " << data.X_b.rows() << '\n';
 
-     std::cout << "Test: " << data.X_test.rows() << '\n';
+     std::cout << "Test: " << X_test.rows() << '\n';
+     std::cout << "Input size: " << X.cols() << '\n';
+     std::cout << "Output size: " << Y.cols() << '\n';
      
      //Build the classifier model
      Model model(
@@ -45,7 +49,7 @@ int main(){
 
      double learning_rate = 0.1;
      int batch_size = 64;
-     int num_samples = data.X_train.rows();
+     int num_samples = data.X_a.rows();
 
      double best_val_loss = std::numeric_limits<double>::infinity();
      int patience = 5;
@@ -60,8 +64,8 @@ int main(){
           //mini=batch loop
           for (int start = 0; start + batch_size <= num_samples; start += batch_size) {
                //sliice the batch from the dataset
-               Eigen::MatrixXd X_batch = data.X_train.middleRows(start, batch_size);
-               Eigen::MatrixXd Y_batch = data.Y_train.middleRows(start, batch_size);
+               Eigen::MatrixXd X_batch = data.X_a.middleRows(start, batch_size);
+               Eigen::MatrixXd Y_batch = data.Y_a.middleRows(start, batch_size);
 
                // Forward pass -> softmax -> loss -> delta -> backward -> update
                Eigen::MatrixXd logits = model.forward(X_batch);
@@ -76,10 +80,10 @@ int main(){
                epoch_accuracy += acc;
                num_batches++;
           }
-          Eigen::MatrixXd val_logits = model.forward(data.X_val);
+          Eigen::MatrixXd val_logits = model.forward(data.X_b);
           Eigen::MatrixXd val_probs = softmax(val_logits);
 
-          double val_loss = cross_entropy(val_probs, data.Y_val);
+          double val_loss = cross_entropy(val_probs, data.Y_b);
           const double min_delta = 1e-4;
           if (val_loss < best_val_loss - min_delta)
           {
@@ -100,7 +104,7 @@ int main(){
                break;
           }
 
-          double val_acc = accuracy(val_probs, data.Y_val);
+          double val_acc = accuracy(val_probs, data.Y_b);
 
           std::cout << "Epoch " << epoch
           << ", Train Loss: " << epoch_loss / num_batches
@@ -112,11 +116,11 @@ int main(){
 
      model = best_model;
      std::cout << "Restored best checkpoint.\n";
-     Eigen::MatrixXd test_logits = model.forward(data.X_test);
+     Eigen::MatrixXd test_logits = model.forward(X_test);
      Eigen::MatrixXd test_probs = softmax(test_logits);
 
-     double test_loss = cross_entropy(test_probs, data.Y_test);
-     double test_acc = accuracy(test_probs, data.Y_test);
+     double test_loss = cross_entropy(test_probs,Y_test);
+     double test_acc = accuracy(test_probs,Y_test);
 
      std::cout << "Test Loss: " << test_loss << ", Test Accuracy: " << test_acc * 100 << "%\n";
 
