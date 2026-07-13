@@ -4,11 +4,18 @@
 #include<iomanip>
 #include<iostream>
 #include<chrono>
+#include<ctime>
+#include<sstream>
 
-Logger::Logger()
+Logger::Logger(const std::string& log_directory)
 {
-    std::filesystem::create_directories("logs");
-    csv_file.open("logs/metrics.csv");
+    std::filesystem::create_directories(log_directory);
+
+    run_directory = std::filesystem::path(log_directory) / generate_timestamp();
+
+    std::filesystem::create_directories(run_directory);
+
+    csv_file.open(run_directory / "metrics.csv");
 
     if (!csv_file.is_open())
     {
@@ -48,4 +55,17 @@ void Logger::log_epoch(const EpochMetrics& metrics)
              << metrics.learning_rate << ","
              << metrics.epoch_time_ms << "\n";
     csv_file.flush();
+}
+
+std::string Logger::generate_timestamp() const
+{
+    auto now = std::chrono::system_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
+    
+    std::chrono::system_clock::to_time_t(now);
+    std::tm local_time = *std::localtime(&current_time);
+
+    std::ostringstream oss;
+    oss << std::put_time(&local_time, "%Y%m%d_%H%M%S");
+    return oss.str();
 }

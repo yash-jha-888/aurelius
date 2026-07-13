@@ -56,7 +56,7 @@ int main(){
      int patience = 5;
      int patience_counter = 0;
 
-     Logger logger;
+     Logger logger("logs");
 
      // Train the model
      for (int epoch = 0; epoch < 40; epoch++) {

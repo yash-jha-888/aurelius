@@ -1,5 +1,5 @@
 #pragma once
-
+#include <filesystem>
 #include <string>
 #include <fstream>
 
@@ -19,10 +19,14 @@ struct EpochMetrics
 class Logger
 {
 public:
-    Logger();
+    Logger(const std::string& log_directory);
 
     void log_epoch(const EpochMetrics& metrics);
 
 private:
     std::ofstream csv_file;
+
+    std::filesystem::path run_directory;
+
+    std::string generate_timestamp() const;
 };
