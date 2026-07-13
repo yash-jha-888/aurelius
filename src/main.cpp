@@ -9,6 +9,7 @@
 #include"Loss.h"
 #include"Model.h"
 #include"Dataset.h"
+#include"Logger.h"
 /*
 Data layout - Row convention
 One example - x is (1 x n_in) a row
@@ -54,6 +55,8 @@ int main(){
      double best_val_loss = std::numeric_limits<double>::infinity();
      int patience = 5;
      int patience_counter = 0;
+
+     Logger logger;
 
      // Train the model
      for (int epoch = 0; epoch < 40; epoch++) {
@@ -106,12 +109,16 @@ int main(){
 
           double val_acc = accuracy(val_probs, data.Y_b);
 
-          std::cout << "Epoch " << epoch
-          << ", Train Loss: " << epoch_loss / num_batches
-          << ", Train Acc: " << (epoch_accuracy / num_batches) * 100 << "%"
-          << ", Val Loss: " << val_loss
-          << ", Val Acc: " << val_acc * 100 << "%"
-          << std::endl;
+          EpochMetrics metrics{               
+              epoch,
+              epoch_loss / num_batches,
+              epoch_accuracy / num_batches,
+              val_loss,
+              val_acc,
+              learning_rate,
+              0 // Placeholder for epoch time in milliseconds
+          };
+          logger.log_epoch(metrics);
      }
 
      model = best_model;

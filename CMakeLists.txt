@@ -17,6 +17,7 @@ add_executable(Aurelius
     src/DenseLayer.cpp
     src/Loss.cpp
     src/Model.cpp
+    src/Logger.cpp
 )
 
 target_link_libraries(Aurelius PRIVATE Eigen3::Eigen)
