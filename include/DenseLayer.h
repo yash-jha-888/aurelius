@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
-
+#include "Initializer.h"
 class DenseLayer
 {
 public:
@@ -14,7 +14,11 @@ public:
     Eigen::MatrixXd gradW;
     Eigen::VectorXd gradb;
 
-    DenseLayer(int n_in, int n_out);
+    DenseLayer(
+    int input_size,
+    int output_size,
+    const Initializer& init
+    );
 
     Eigen::MatrixXd forward(const Eigen::MatrixXd& X);
 };

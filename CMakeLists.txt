@@ -18,6 +18,8 @@ add_executable(Aurelius
     src/Loss.cpp
     src/Model.cpp
     src/Logger.cpp
+    src/Initializer.cpp
+    src/Optimizer.cpp
 )
 
 target_link_libraries(Aurelius PRIVATE Eigen3::Eigen)

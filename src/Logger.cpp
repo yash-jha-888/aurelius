@@ -57,6 +57,33 @@ void Logger::log_epoch(const EpochMetrics& metrics)
     csv_file.flush();
 }
 
+void Logger::write_run_config(const RunConfig& config)
+{
+    std::ofstream json(run_directory / "run_config.json");
+    if (!json.is_open())
+    {
+        throw std::runtime_error("Failed to open run_config.json");
+    }
+    json << "{\n";
+    json << "  \"architecture\": [";
+    for (size_t i = 0; i < config.architecture.size(); i++)
+    {
+    json << config.architecture[i];
+    if (i + 1 != config.architecture.size())
+        json << ", ";
+    }
+    json << "],\n";
+    json << "  \"activation\": \"" << config.activation << "\",\n";
+    json << "  \"initializer\": \"" << config.initializer << "\",\n";
+    json << "  \"optimizer\": \"" << config.optimizer << "\",\n";
+    json << "  \"learning_rate\": " << config.learning_rate << ",\n";
+    json << "  \"batch_size\": " << config.batch_size << ",\n";
+    json << "  \"max_epochs\": " << config.epochs << ",\n";
+    json << "  \"patience\": " << config.patience << ",\n";
+    json << "  \"random_seed\": " << config.random_seed << "\n";
+    json << "}\n";
+    json.flush();
+}
 std::string Logger::generate_timestamp() const
 {
     auto now = std::chrono::system_clock::now();

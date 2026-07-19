@@ -1,25 +1,26 @@
 #include "Model.h"
-#include "Activation.h"
-#include<Eigen/Dense>
+
 Model::Model(
     const std::vector<int>& sizes,
-    std::unique_ptr<Activation> act
+    std::unique_ptr<Activation> act,
+    std::unique_ptr<Initializer> init,
+    std::unique_ptr<Optimizer> opt
 )
-    : activation(std::move(act))
+    : activation(std::move(act)), initializer(std::move(init)), optimizer(std::move(opt))
 {
     for (int i = 0; i < sizes.size() - 1; i++)
     {
-        layers.emplace_back(sizes[i], sizes[i + 1]);
+        layers.emplace_back(sizes[i], sizes[i + 1], *initializer);
     }
 }
 Model::Model(const Model& other)
-    : layers(other.layers)
+: layers(other.layers),
+  activation(other.activation ? other.activation->clone() : nullptr),
+  initializer(other.initializer ? other.initializer->clone() : nullptr),
+  optimizer(other.optimizer ? other.optimizer->clone() : nullptr)
 {
-    if (other.activation)
-    {
-        activation = other.activation->clone();
-    }
 }
+
 Model& Model::operator=(const Model& other)
 {
     if (this == &other)
@@ -28,7 +29,8 @@ Model& Model::operator=(const Model& other)
     }
 
     layers = other.layers;
-
+    initializer = other.initializer ? other.initializer->clone() : nullptr;
+    optimizer = other.optimizer ? other.optimizer->clone() : nullptr;
     if (other.activation)
     {
         activation = other.activation->clone();
@@ -73,8 +75,14 @@ void Model::backward(const Eigen::MatrixXd& output_delta)
 
 void Model::update(double learning_rate)
 {
-     for (auto& layer : layers) {
-         layer.W -= learning_rate * layer.gradW;
-         layer.b -= learning_rate * layer.gradb.transpose();
-     }
+for (auto& layer : layers)
+{
+    optimizer->update(
+        layer.W,
+        layer.b,
+        layer.gradW,
+        layer.gradb,
+        learning_rate
+    );
+}
 }

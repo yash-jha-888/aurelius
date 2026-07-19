@@ -4,16 +4,22 @@
 #include "DenseLayer.h"
 #include <memory>
 #include "Activation.h"
+#include "Initializer.h"
+#include "Optimizer.h"
 
 class Model
 {
 private:
     std::vector<DenseLayer> layers;
     std::unique_ptr<Activation> activation;
+    std::unique_ptr<Initializer> initializer;
+    std::unique_ptr<Optimizer> optimizer;
 
 public:
     Model(const std::vector<int>& sizes,
-          std::unique_ptr<Activation> act
+          std::unique_ptr<Activation> act,
+          std::unique_ptr<Initializer> init,
+          std::unique_ptr<Optimizer> opt
         );
 
     Model(const Model& other);

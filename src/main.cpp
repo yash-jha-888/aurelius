@@ -29,8 +29,10 @@ int main(){
      Eigen::MatrixXd Y = load_labels(data_dir + "train-labels-idx1-ubyte");
      Eigen::MatrixXd X_test = load_images(data_dir + "t10k-images-idx3-ubyte");
      Eigen::MatrixXd Y_test = load_labels(data_dir + "t10k-labels-idx1-ubyte");
-
-     DataSplit data = train_val_split(X, Y,0.1, 42);
+     
+     int random_state = 42;
+     
+     DataSplit data = train_val_split(X, Y,0.1, random_state);
 
      std::cout << "Train: " << data.X_a.rows() << '\n';
 
@@ -40,10 +42,13 @@ int main(){
      std::cout << "Input size: " << X.cols() << '\n';
      std::cout << "Output size: " << Y.cols() << '\n';
      
-     //Build the classifier model
+     std::vector<int> architecture = {784, 128, 64, 10};
+     
      Model model(
-     {784,128,64,10},
-     std::make_unique<LeakyReLU>()
+     architecture,
+     std::make_unique<LeakyReLU>(),
+     std::make_unique<HeInitializer>(),
+     std::make_unique<SGD>()
      );
 
      Model best_model = model;
@@ -55,11 +60,26 @@ int main(){
      double best_val_loss = std::numeric_limits<double>::infinity();
      int patience = 5;
      int patience_counter = 0;
+     int max_epochs = 40;
 
      Logger logger("logs");
+     
+     RunConfig config{
+         architecture,
+         "LeakyReLU",
+         "HeInitializer",
+         "SGD",
+         learning_rate,
+         batch_size,
+         max_epochs,
+         patience,
+         random_state
+     };
+
+     logger.write_run_config(config);
 
      // Train the model
-     for (int epoch = 0; epoch < 40; epoch++) {
+     for (int epoch = 0; epoch < max_epochs; epoch++) {
           double epoch_loss = 0.0;
           double epoch_accuracy = 0.0;
           int num_batches = 0;

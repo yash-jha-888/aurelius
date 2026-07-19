@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <string>
 #include <fstream>
+#include "RunConfig.h"
 
 struct EpochMetrics
 {
@@ -22,6 +23,8 @@ public:
     Logger(const std::string& log_directory);
 
     void log_epoch(const EpochMetrics& metrics);
+
+    void write_run_config(const RunConfig& config);
 
 private:
     std::ofstream csv_file;
