@@ -20,7 +20,7 @@ struct EpochMetrics
 class Logger
 {
 public:
-    Logger(const std::string& log_directory);
+    Logger(const std::filesystem::path& log_directory);
 
     void log_epoch(const EpochMetrics& metrics);
 

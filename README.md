@@ -2,13 +2,13 @@
 
 Aurelius is a deep learning framework written in modern C++ from first principles.
 
-I started this project to understand what happens underneath libraries like PyTorch instead of treating them as black boxes. Every major building block is implemented manually, from the mathematics to the engineering, with the long-term goal of growing Aurelius into a complete deep learning framework.
+I started this project to understand what happens underneath libraries like PyTorch instead of treating them as black boxes.
+
+Every major building block is implemented manually, from the mathematics to the engineering, with the long-term goal of growing Aurelius into a complete deep learning framework.
 
 One of the principles behind Aurelius is simple: every abstraction I use should be one I've implemented myself first.
 
-The project implements the core components of neural network training without relying on existing machine learning frameworks. Its primary goal is to provide a reference implementation of how modern deep learning systems work internally while maintaining a modular, extensible architecture.
-
-The framework currently supports fully connected neural networks trained on the MNIST handwritten digit dataset. Each major subsystem, including activations, weight initialization, loss functions, logging, and optimization, is designed as an independent abstraction that can be extended without modifying the rest of the framework.
+Each major subsystem, including activations, weight initialization, loss functions, logging, and optimization, is designed as an independent abstraction that can be extended without modifying the rest of the framework.
 
 
 ---
@@ -37,9 +37,11 @@ The framework currently supports fully connected neural networks trained on the 
 
 - Activation abstraction
 - Initializer abstraction
+- Optimizer abstraction
 - Modular layer design
 - Timestamped experiment logging
 - CSV training metrics
+- json training run configs
 
 ### Data
 

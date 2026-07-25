@@ -2,8 +2,9 @@
 #include<Eigen/Dense>
 #include<cmath>
 #include<limits>
-#include <string>
-#include <memory>
+#include<string>
+#include<memory>
+#include<filesystem>
 #include"DenseLayer.h"
 #include"Activation.h"
 #include"Loss.h"
@@ -62,7 +63,10 @@ int main(){
      int patience_counter = 0;
      int max_epochs = 40;
 
-     Logger logger("logs");
+     std::filesystem::path log_directory =
+         std::filesystem::path(PROJECT_ROOT) / "logs";
+
+     Logger logger(log_directory);
      
      RunConfig config{
          architecture,

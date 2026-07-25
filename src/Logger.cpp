@@ -7,11 +7,11 @@
 #include<ctime>
 #include<sstream>
 
-Logger::Logger(const std::string& log_directory)
+Logger::Logger(const std::filesystem::path& log_directory)
 {
     std::filesystem::create_directories(log_directory);
 
-    run_directory = std::filesystem::path(log_directory) / generate_timestamp();
+    run_directory = log_directory / generate_timestamp();
 
     std::filesystem::create_directories(run_directory);
 
