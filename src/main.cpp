@@ -25,7 +25,7 @@ Each row of Y is one example's outputs.
 int main(){
      
      // Load the MNIST dataset
-     std::string data_dir = std::string(PROJECT_ROOT) + "/data/";
+     std::string data_dir = std::string(PROJECT_ROOT) + "/data/mnist/";
      Eigen::MatrixXd X = load_images(data_dir + "train-images-idx3-ubyte");
      Eigen::MatrixXd Y = load_labels(data_dir + "train-labels-idx1-ubyte");
      Eigen::MatrixXd X_test = load_images(data_dir + "t10k-images-idx3-ubyte");
